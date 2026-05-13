@@ -6,10 +6,16 @@ import { motion, useSpring } from "framer-motion";
 export function CustomCursor() {
   const [isHovering, setIsHovering] = useState(false);
 
+  const [mounted, setMounted] = useState(false);
   const cursorX = useSpring(0, { stiffness: 300, damping: 30 });
   const cursorY = useSpring(0, { stiffness: 300, damping: 30 });
 
   useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!mounted) return;
     const moveMouse = (e: MouseEvent) => {
       cursorX.set(e.clientX - 16);
       cursorY.set(e.clientY - 16);
@@ -37,7 +43,9 @@ export function CustomCursor() {
       window.removeEventListener("mousemove", moveMouse);
       window.removeEventListener("mouseover", handleMouseOver);
     };
-  }, [cursorX, cursorY]);
+  }, [mounted, cursorX, cursorY]);
+
+  if (!mounted) return null;
 
   return (
     <motion.div

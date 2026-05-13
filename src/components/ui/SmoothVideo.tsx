@@ -23,7 +23,17 @@ export function SmoothVideo({
 
   useEffect(() => {
     const v = v1.current;
-    if (v) v.play().catch(() => {});
+    if (v) {
+      const handleCanPlay = () => {
+        v.play().catch(() => {});
+        v.removeEventListener("canplay", handleCanPlay);
+      };
+      if (v.readyState >= 2) {
+        v.play().catch(() => {});
+      } else {
+        v.addEventListener("canplay", handleCanPlay);
+      }
+    }
   }, []);
 
   useEffect(() => {
@@ -40,6 +50,11 @@ export function SmoothVideo({
 
       // Inicia a transição quando estiver perto do fim
       if (currentVideo.currentTime >= currentVideo.duration - fadeDuration && !isTransitioning.current) {
+        // Verifica se o próximo vídeo está pronto para tocar e buscar
+        if (nextVideo.readyState < 3) {
+          return;
+        }
+
         isTransitioning.current = true;
         
         nextVideo.currentTime = startTime;
@@ -50,9 +65,12 @@ export function SmoothVideo({
           setTimeout(() => {
             isTransitioning.current = false;
           }, fadeDuration * 1000);
-        }).catch(err => {
-          console.error("Play error:", err);
-          isTransitioning.current = false;
+        }).catch(() => {
+          // Não logamos para não poluir o console caso seja um erro comum de interrupção
+          // Mas resetamos com um delay para evitar loop infinito de erros
+          setTimeout(() => {
+            isTransitioning.current = false;
+          }, 2000);
         });
       }
 
