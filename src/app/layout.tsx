@@ -10,9 +10,6 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "Flow In Tic",
   description: "Onde a tecnologia encontra o flow",
-  icons: {
-    icon: "/imgs/flowintic-sf.png",
-  },
 };
 
 export default function RootLayout({
